@@ -11,7 +11,7 @@ import CoreLocation
 
 class ViewController: UIViewController, CLLocationManagerDelegate {
 
-  private var regionState:CLRegionState?
+  private var regionState:[String:CLRegionState] = [String:CLRegionState]()
   private let proximityUUID = [
     NSUUID(UUIDString: "B5B182C7-EAB1-4988-AA99-B5C1517008D9"),
 //    NSUUID(UUIDString: "B5B182C7-EAB1-4988-AA99-B5C1517008D8"),
@@ -121,13 +121,16 @@ class ViewController: UIViewController, CLLocationManagerDelegate {
         })
         msg = "Unknown"
     }
-    if (regionState != state) {
-      regionState = state
-      let idString = region.identifier.substringFromIndex(region.identifier.startIndex.advancedBy(34))
-      sendNotification(idString + ":" + msg)
-      load_data("http://192.168.200.103:8000/index.html?"+String(arc4random()))
+    if (regionState.indexForKey(region.identifier) != nil) {
+      if (regionState[region.identifier] != state) {
+        regionState[region.identifier] = state
+        handleRegionActions(region, msg: msg)
+      }
     }
-
+    else {
+      regionState.updateValue(state, forKey: region.identifier)
+      handleRegionActions(region, msg: msg)
+    }
 
   }
 
@@ -141,6 +144,15 @@ class ViewController: UIViewController, CLLocationManagerDelegate {
 //    print("Exit Region")
 //    
 //  }
+
+  // send local notification
+  // send http request
+  // ble scanning...?
+  func handleRegionActions(region:CLRegion, msg:String) {
+    let idString = region.identifier.substringFromIndex(region.identifier.startIndex.advancedBy(34))
+    sendNotification(idString + ":" + msg)
+    load_data("http://192.168.200.103:8000/index.html?"+String(arc4random()))
+  }
 
   func sendNotification(msg:String) {
     let buf = msg + ":" + NSDateFormatter.localizedStringFromDate(NSDate(), dateStyle: .ShortStyle, timeStyle: .MediumStyle)
