@@ -23,6 +23,9 @@ class ViewController: UIViewController, CLLocationManagerDelegate, CBCentralMana
   private var myRegions:NSMutableArray = []
 
   private var centralManager:CBCentralManager?
+  private var connectedPeripheral:CBPeripheral?
+  private var discoveredPeripheral:CBPeripheral?
+
 
   override func viewDidLoad() {
     super.viewDidLoad()
@@ -83,7 +86,7 @@ class ViewController: UIViewController, CLLocationManagerDelegate, CBCentralMana
 
   func startScanning() {
     print("Start scan")
-    centralManager?.scanForPeripheralsWithServices([hm10ServiceUUID], options: [CBCentralManagerScanOptionAllowDuplicatesKey:NSNumber(bool: true)])
+    centralManager?.scanForPeripheralsWithServices([hm10ServiceUUID], options: [CBCentralManagerScanOptionAllowDuplicatesKey:NSNumber(bool: false)])
 
   }
 
@@ -100,7 +103,13 @@ class ViewController: UIViewController, CLLocationManagerDelegate, CBCentralMana
     }
 
     // 第五步: 找出符合的裝置進行連線
-    centralManager?.connectPeripheral(peripheral, options: nil)
+    if (peripheral.identifier.UUIDString == DEVICE_IDENTIFIER_UUID) {
+      if (discoveredPeripheral != peripheral) {
+        print("Start connect peripheral")
+        discoveredPeripheral = peripheral
+        centralManager?.connectPeripheral(peripheral, options: nil)
+      }
+    }
     /*
     centralManager?.connectPeripheral(peripheral, options: [
       CBCentralManagerRestoredStatePeripheralsKey:NSNumber(bool: true),
@@ -112,10 +121,14 @@ class ViewController: UIViewController, CLLocationManagerDelegate, CBCentralMana
   }
 
   func centralManager(central: CBCentralManager, didConnectPeripheral peripheral: CBPeripheral) {
+    print("didConnectPeripheral:",peripheral)
     // 連線成功後該裝置訊號就不會再觸發 didDiscoverPeripheral
     // 如果只有單一藍芽裝置，即可以停止掃描
-    stopScanning()
+    //stopScanning()
 
+    if (connectedPeripheral == peripheral) {
+      return
+    }
     // 第七步: 設定連線裝置 delegate
     // Make sure we get the discovery callbacks
     peripheral.delegate = self
@@ -133,12 +146,17 @@ class ViewController: UIViewController, CLLocationManagerDelegate, CBCentralMana
 
   func centralManager(central: CBCentralManager, didDisconnectPeripheral peripheral: CBPeripheral, error: NSError?) {
     print("結束連線")
-    peripheral.delegate = nil
+
+    connectedPeripheral = nil
+    discoveredPeripheral = nil
 
   }
 
   func centralManager(central: CBCentralManager, didFailToConnectPeripheral peripheral: CBPeripheral, error: NSError?) {
     print("連線失敗")
+
+    connectedPeripheral = nil
+    discoveredPeripheral = nil
   }
 
   func centralManager(central: CBCentralManager, willRestoreState dict: [String : AnyObject]) {
