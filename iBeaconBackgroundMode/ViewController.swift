@@ -8,8 +8,9 @@
 
 import UIKit
 import CoreLocation
+import CoreBluetooth
 
-class ViewController: UIViewController, CLLocationManagerDelegate {
+class ViewController: UIViewController, CLLocationManagerDelegate, CBCentralManagerDelegate, CBPeripheralDelegate {
 
   private var regionState:[String:CLRegionState] = [String:CLRegionState]()
   private let proximityUUID = [
@@ -20,6 +21,8 @@ class ViewController: UIViewController, CLLocationManagerDelegate {
   private var locationManager:CLLocationManager?
   //private var myRegion:CLBeaconRegion?
   private var myRegions:NSMutableArray = []
+
+  private var centralManager:CBCentralManager?
 
   override func viewDidLoad() {
     super.viewDidLoad()
@@ -47,6 +50,9 @@ class ViewController: UIViewController, CLLocationManagerDelegate {
       myRegions.addObject(beacon)
     }
     startMonitoring()
+
+    // BLE
+    centralManager = CBCentralManager(delegate: self, queue: nil)
   }
 
   override func didReceiveMemoryWarning() {
@@ -64,6 +70,148 @@ class ViewController: UIViewController, CLLocationManagerDelegate {
 
   }
 
+  // CBCentralManagerDelegate
+  func centralManagerDidUpdateState(central: CBCentralManager) {
+    print("central state:\(central.state.description)")
+    if central.state != CBCentralManagerState.PoweredOn {
+      return;
+    }
+    //print("Start scan")
+    //startScanning()
+
+  }
+
+  func startScanning() {
+    print("Start scan")
+    centralManager?.scanForPeripheralsWithServices([hm10ServiceUUID], options: [CBCentralManagerScanOptionAllowDuplicatesKey:NSNumber(bool: true)])
+
+  }
+
+  func stopScanning() {
+    print("Stop scan")
+    centralManager?.stopScan()
+
+  }
+
+  func centralManager(central: CBCentralManager, didDiscoverPeripheral peripheral: CBPeripheral, advertisementData: [String : AnyObject], RSSI: NSNumber) {
+    if RSSI.integerValue > 0 {
+      print("Device not at correct range:",RSSI)
+      return
+    }
+
+    // 第五步: 找出符合的裝置進行連線
+    centralManager?.connectPeripheral(peripheral, options: nil)
+    /*
+    centralManager?.connectPeripheral(peripheral, options: [
+      CBCentralManagerRestoredStatePeripheralsKey:NSNumber(bool: true),
+      CBCentralManagerRestoredStateScanServicesKey:NSNumber(bool: true),
+      CBCentralManagerRestoredStateScanOptionsKey:NSNumber(bool: true)
+      ])
+    */
+
+  }
+
+  func centralManager(central: CBCentralManager, didConnectPeripheral peripheral: CBPeripheral) {
+    // 連線成功後該裝置訊號就不會再觸發 didDiscoverPeripheral
+    // 如果只有單一藍芽裝置，即可以停止掃描
+    stopScanning()
+
+    // 第七步: 設定連線裝置 delegate
+    // Make sure we get the discovery callbacks
+    peripheral.delegate = self
+
+    // 第八步: 掃描此連線裝置有哪些服務
+    // Search only for services that match our UUID
+    peripheral.discoverServices([hm10ServiceUUID])
+    //peripheral.discoverServices(nil)
+
+    // 第九步: 讀取 RSSI 值(非同步)
+    peripheral.readRSSI()
+
+  }
+
+
+  func centralManager(central: CBCentralManager, didDisconnectPeripheral peripheral: CBPeripheral, error: NSError?) {
+    print("結束連線")
+    peripheral.delegate = nil
+
+  }
+
+  func centralManager(central: CBCentralManager, didFailToConnectPeripheral peripheral: CBPeripheral, error: NSError?) {
+    print("連線失敗")
+  }
+
+  func centralManager(central: CBCentralManager, willRestoreState dict: [String : AnyObject]) {
+    print("Restore")
+  }
+
+  // 第十步: 傳回連線裝置 RSSI 值
+  func peripheral(peripheral: CBPeripheral, didReadRSSI RSSI: NSNumber, error: NSError?) {
+    // 更新
+    //savePeripheral(peripheral, rssi: RSSI)
+  }
+
+  // 第十一步: 發現裝置服務會觸發此函式
+  func peripheral(peripheral: CBPeripheral, didDiscoverServices error: NSError?) {
+    if let err = error {
+      print("Discover Services error:",err)
+    }
+
+    // 第十二步: 掃描 Characteristics
+    print("p Services:",peripheral.services)
+    for service in peripheral.services as [CBService]! {
+      if (service.UUID == hm10ServiceUUID) {
+        print("discover HM10")
+        peripheral.discoverCharacteristics([hm10CharacteristicUUID], forService: service)
+      }
+    }
+
+  }
+
+  // 第十三步: 發現 Characteristics
+  func peripheral(peripheral: CBPeripheral, didDiscoverCharacteristicsForService service: CBService, error: NSError?) {
+    if let err = error {
+      print("Discover Characteristics For Service error:",err)
+
+    }
+
+    // 比對 characteristics
+    for characteristic in service.characteristics as [CBCharacteristic]! {
+      if (characteristic.UUID == hm10CharacteristicUUID) {
+        // 第十四步: 回應需要訂閱
+        print("Set Notify")
+        peripheral.setNotifyValue(true, forCharacteristic: characteristic)
+      }
+    }
+
+  }
+
+  // 第十五步: 處理訂閱後傳回來的資料
+  func peripheral(peripheral: CBPeripheral, didUpdateValueForCharacteristic characteristic: CBCharacteristic, error: NSError?) {
+    if let error = error {
+      print("Error discovering services: \(error.localizedDescription)")
+      return
+    }
+
+    print("characteristic:",characteristic)
+    if let stringFromData = String(data: characteristic.value!, encoding: NSUTF8StringEncoding) {
+      print("Received: \(stringFromData)")
+      // 處理回傳資料
+      // 取消訂閱
+      //peripheral.setNotifyValue(false, forCharacteristic: characteristic)
+      // 取消連線
+      //centralManager?.cancelPeripheralConnection(peripheral)
+    }
+  }
+
+  // 第十六步: 處理裝置訂閱狀態改變
+  func peripheral(peripheral: CBPeripheral, didUpdateNotificationStateForCharacteristic characteristic: CBCharacteristic, error: NSError?) {
+    print("Error changing notification state: \(error?.localizedDescription)")
+    
+  }
+
+
+  // iBeacon
   /**
   前景或背景下偵測 ibeacon 可以用 startRangingBeaconsInRegion
   要在 app 不執行的狀態下偵測 ibeacon 必需用 startMonitoringForRegion
@@ -126,10 +274,12 @@ class ViewController: UIViewController, CLLocationManagerDelegate {
         regionState[region.identifier] = state
         handleRegionActions(region, msg: msg)
       }
+      startScanning()
     }
     else {
       regionState.updateValue(state, forKey: region.identifier)
       handleRegionActions(region, msg: msg)
+
     }
 
   }

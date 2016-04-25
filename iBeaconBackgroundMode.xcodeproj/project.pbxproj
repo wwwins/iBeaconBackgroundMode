@@ -7,6 +7,10 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		D06FD3991CC8CA780094C663 /* CoreBluetooth.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D06FD3981CC8CA780094C663 /* CoreBluetooth.framework */; };
+		D06FD39C1CC8CAD30094C663 /* BLEEnumExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = D06FD39A1CC8CAD30094C663 /* BLEEnumExtension.swift */; settings = {ASSET_TAGS = (); }; };
+		D06FD39D1CC8CAD30094C663 /* PeripheralData.swift in Sources */ = {isa = PBXBuildFile; fileRef = D06FD39B1CC8CAD30094C663 /* PeripheralData.swift */; settings = {ASSET_TAGS = (); }; };
+		D06FD39F1CC8CB110094C663 /* TBDefaults.swift in Sources */ = {isa = PBXBuildFile; fileRef = D06FD39E1CC8CB110094C663 /* TBDefaults.swift */; settings = {ASSET_TAGS = (); }; };
 		D07987F01CC763490027E764 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = D07987EF1CC763490027E764 /* AppDelegate.swift */; };
 		D07987F21CC763490027E764 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = D07987F11CC763490027E764 /* ViewController.swift */; };
 		D07987F51CC763490027E764 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = D07987F31CC763490027E764 /* Main.storyboard */; };
@@ -15,6 +19,10 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		D06FD3981CC8CA780094C663 /* CoreBluetooth.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreBluetooth.framework; path = System/Library/Frameworks/CoreBluetooth.framework; sourceTree = SDKROOT; };
+		D06FD39A1CC8CAD30094C663 /* BLEEnumExtension.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = BLEEnumExtension.swift; path = ../../TreeBlue/TreeBlue/TreeBlue/BLEEnumExtension.swift; sourceTree = "<group>"; };
+		D06FD39B1CC8CAD30094C663 /* PeripheralData.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = PeripheralData.swift; path = ../../TreeBlue/TreeBlue/TreeBlue/PeripheralData.swift; sourceTree = "<group>"; };
+		D06FD39E1CC8CB110094C663 /* TBDefaults.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = TBDefaults.swift; path = ../../TreeBlue/TreeBlue/TreeBlue/TBDefaults.swift; sourceTree = "<group>"; };
 		D07987EC1CC763490027E764 /* iBeaconBackgroundMode.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = iBeaconBackgroundMode.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		D07987EF1CC763490027E764 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		D07987F11CC763490027E764 /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
@@ -29,6 +37,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				D06FD3991CC8CA780094C663 /* CoreBluetooth.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -38,6 +47,7 @@
 		D07987E31CC763490027E764 = {
 			isa = PBXGroup;
 			children = (
+				D06FD3981CC8CA780094C663 /* CoreBluetooth.framework */,
 				D07987EE1CC763490027E764 /* iBeaconBackgroundMode */,
 				D07987ED1CC763490027E764 /* Products */,
 			);
@@ -54,7 +64,10 @@
 		D07987EE1CC763490027E764 /* iBeaconBackgroundMode */ = {
 			isa = PBXGroup;
 			children = (
+				D06FD39E1CC8CB110094C663 /* TBDefaults.swift */,
 				D07987EF1CC763490027E764 /* AppDelegate.swift */,
+				D06FD39A1CC8CAD30094C663 /* BLEEnumExtension.swift */,
+				D06FD39B1CC8CAD30094C663 /* PeripheralData.swift */,
 				D07987F11CC763490027E764 /* ViewController.swift */,
 				D07987F31CC763490027E764 /* Main.storyboard */,
 				D07987F61CC763490027E764 /* Assets.xcassets */,
@@ -140,6 +153,9 @@
 			buildActionMask = 2147483647;
 			files = (
 				D07987F21CC763490027E764 /* ViewController.swift in Sources */,
+				D06FD39F1CC8CB110094C663 /* TBDefaults.swift in Sources */,
+				D06FD39D1CC8CAD30094C663 /* PeripheralData.swift in Sources */,
+				D06FD39C1CC8CAD30094C663 /* BLEEnumExtension.swift in Sources */,
 				D07987F01CC763490027E764 /* AppDelegate.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
