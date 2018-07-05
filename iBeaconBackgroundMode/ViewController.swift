@@ -23,6 +23,9 @@ class ViewController: UIViewController, CLLocationManagerDelegate {
   //private var myRegion:CLBeaconRegion?
   fileprivate var myRegions:NSMutableArray = []
 
+  // setup of sending message
+  let msgNeedSendNotification = ["Inside","Outside"]
+
   override func viewDidLoad() {
     super.viewDidLoad()
     // Do any additional setup after loading the view, typically from a nib.
@@ -154,9 +157,12 @@ class ViewController: UIViewController, CLLocationManagerDelegate {
     print("handleRegionActions:"+msg)
     let idString = String(region.identifier.suffix(2))
     msgLabel.text = "編號:" + idString + "\n狀態:" + msg
-    if (msg=="Inside") {
-      sendNotification(idString + ":" + msg)
-//    load_data("https://314f2c94.ngrok.io/?"+String(arc4random()))
+
+    for m in msgNeedSendNotification {
+      if (msg==m) {
+        sendNotification(idString + ":" + msg)
+//        load_data("https://314f2c94.ngrok.io/?"+String(arc4random()))
+      }
     }
   }
 
