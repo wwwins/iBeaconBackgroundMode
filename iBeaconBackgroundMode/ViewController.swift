@@ -11,6 +11,8 @@ import CoreLocation
 
 class ViewController: UIViewController, CLLocationManagerDelegate {
 
+  @IBOutlet weak var msgLabel: UILabel!
+
   fileprivate var regionState:[String:CLRegionState] = [String:CLRegionState]()
   fileprivate let proximityUUID = [
     UUID(uuidString: "B5B182C7-EAB1-4988-AA99-B5C1517008D9"),
@@ -150,9 +152,12 @@ class ViewController: UIViewController, CLLocationManagerDelegate {
   // ble scanning...?
   func handleRegionActions(_ region:CLRegion, msg:String) {
     print("handleRegionActions:"+msg)
-    let idString = region.identifier.substring(from: region.identifier.characters.index(region.identifier.startIndex, offsetBy: 34))
-    sendNotification(idString + ":" + msg)
-//    load_data("http://192.168.200.103:8000/index.html?"+String(arc4random()))
+    let idString = region.identifier.substring(from: region.identifier.index(region.identifier.startIndex, offsetBy: 34))
+    msgLabel.text = "編號:" + idString + "\n狀態:" + msg
+    if (msg=="Inside") {
+      sendNotification(idString + ":" + msg)
+//    load_data("https://314f2c94.ngrok.io/?"+String(arc4random()))
+    }
   }
 
   func sendNotification(_ msg:String) {
