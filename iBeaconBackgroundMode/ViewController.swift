@@ -11,15 +11,15 @@ import CoreLocation
 
 class ViewController: UIViewController, CLLocationManagerDelegate {
 
-  private var regionState:[String:CLRegionState] = [String:CLRegionState]()
-  private let proximityUUID = [
-    NSUUID(UUIDString: "B5B182C7-EAB1-4988-AA99-B5C1517008D9"),
-//    NSUUID(UUIDString: "B5B182C7-EAB1-4988-AA99-B5C1517008D8"),
-//    NSUUID(UUIDString: "B5B182C7-EAB1-4988-AA99-B5C1517008D7")
+  fileprivate var regionState:[String:CLRegionState] = [String:CLRegionState]()
+  fileprivate let proximityUUID = [
+    UUID(uuidString: "B5B182C7-EAB1-4988-AA99-B5C1517008D9"),
+//    UUID(uuidString: "B5B182C7-EAB1-4988-AA99-B5C1517008D8"),
+//    UUID(uuidString: "B5B182C7-EAB1-4988-AA99-B5C1517008D7")
   ]
-  private var locationManager:CLLocationManager?
+  fileprivate var locationManager:CLLocationManager?
   //private var myRegion:CLBeaconRegion?
-  private var myRegions:NSMutableArray = []
+  fileprivate var myRegions:NSMutableArray = []
 
   override func viewDidLoad() {
     super.viewDidLoad()
@@ -40,11 +40,11 @@ class ViewController: UIViewController, CLLocationManagerDelegate {
 
     for uuid in proximityUUID {
       // 指定 major/minor id 反應會比較快
-      let s = (uuid?.UUIDString)!
+      let s = (uuid?.uuidString)!
       let beacon = CLBeaconRegion(proximityUUID: uuid!, major: 1, minor: 9, identifier: s)
       //let beacon = CLBeaconRegion(proximityUUID: uuid!, identifier: s)
       //let beacon = CLBeaconRegion(proximityUUID: uuid!, major: 1, identifier: s)
-      myRegions.addObject(beacon)
+      myRegions.add(beacon)
     }
     startMonitoring()
   }
@@ -54,12 +54,12 @@ class ViewController: UIViewController, CLLocationManagerDelegate {
     // Dispose of any resources that can be recreated.
   }
 
-  override func viewDidAppear(animated: Bool) {
+  override func viewDidAppear(_ animated: Bool) {
     super.viewDidAppear(animated)
 
   }
 
-  override func viewDidDisappear(animated: Bool) {
+  override func viewDidDisappear(_ animated: Bool) {
     super.viewDidDisappear(animated)
 
   }
@@ -73,8 +73,8 @@ class ViewController: UIViewController, CLLocationManagerDelegate {
     locationManager!.startUpdatingLocation()
     for r in myRegions {
       let region = r as! CLBeaconRegion
-      locationManager!.startMonitoringForRegion(region)
-      locationManager!.startRangingBeaconsInRegion(region)
+      locationManager!.startMonitoring(for: region)
+      locationManager!.startRangingBeacons(in: region)
     }
 
   }
@@ -83,45 +83,45 @@ class ViewController: UIViewController, CLLocationManagerDelegate {
     print("Stop Monitoring")
     for r in myRegions {
       let region = r as! CLBeaconRegion
-      locationManager!.stopMonitoringForRegion(region)
-      locationManager!.stopRangingBeaconsInRegion(region)
+      locationManager!.stopMonitoring(for: region)
+      locationManager!.stopRangingBeacons(in: region)
     }
 
   }
 
   // startRangingBeaconsInRegion 觸發
-  func locationManager(manager: CLLocationManager, didRangeBeacons beacons: [CLBeacon], inRegion region: CLBeaconRegion) {
+  func locationManager(_ manager: CLLocationManager, didRangeBeacons beacons: [CLBeacon], in region: CLBeaconRegion) {
     //print("Range Beacons",beacons)
 
   }
 
   // startMonitoringForRegion 觸發
-  func locationManager(manager: CLLocationManager, didDetermineState state: CLRegionState, forRegion region: CLRegion) {
+  func locationManager(_ manager: CLLocationManager, didDetermineState state: CLRegionState, for region: CLRegion) {
 
     print("Determine:",region)
 
     var msg:String
     switch state {
-      case .Inside:
+      case .inside:
         print("Inside")
-        UIView.animateWithDuration(0.5, animations: { () -> Void in
-          self.view.backgroundColor = UIColor.greenColor()
+        UIView.animate(withDuration: 0.5, animations: { () -> Void in
+          self.view.backgroundColor = UIColor.green
         })
         msg = "Inside"
-      case .Outside:
+      case .outside:
         print("Outside")
-        UIView.animateWithDuration(0.5, animations: { () -> Void in
-          self.view.backgroundColor = UIColor.redColor()
+        UIView.animate(withDuration: 0.5, animations: { () -> Void in
+          self.view.backgroundColor = UIColor.red
         })
         msg = "Outside"
-      case .Unknown:
+      case .unknown:
         print("Unknown")
-        UIView.animateWithDuration(0.5, animations: { () -> Void in
-          self.view.backgroundColor = UIColor.grayColor()
+        UIView.animate(withDuration: 0.5, animations: { () -> Void in
+          self.view.backgroundColor = UIColor.gray
         })
         msg = "Unknown"
     }
-    if (regionState.indexForKey(region.identifier) != nil) {
+    if (regionState.index(forKey: region.identifier) != nil) {
       if (regionState[region.identifier] != state) {
         regionState[region.identifier] = state
         handleRegionActions(region, msg: msg)
@@ -148,37 +148,37 @@ class ViewController: UIViewController, CLLocationManagerDelegate {
   // send local notification
   // send http request
   // ble scanning...?
-  func handleRegionActions(region:CLRegion, msg:String) {
-    let idString = region.identifier.substringFromIndex(region.identifier.startIndex.advancedBy(34))
+  func handleRegionActions(_ region:CLRegion, msg:String) {
+    print("handleRegionActions:"+msg)
+    let idString = region.identifier.substring(from: region.identifier.characters.index(region.identifier.startIndex, offsetBy: 34))
     sendNotification(idString + ":" + msg)
-    load_data("http://192.168.200.103:8000/index.html?"+String(arc4random()))
+//    load_data("http://192.168.200.103:8000/index.html?"+String(arc4random()))
   }
 
-  func sendNotification(msg:String) {
-    let buf = msg + ":" + NSDateFormatter.localizedStringFromDate(NSDate(), dateStyle: .ShortStyle, timeStyle: .MediumStyle)
+  func sendNotification(_ msg:String) {
+    let buf = msg + ":" + DateFormatter.localizedString(from: Date(), dateStyle: .short, timeStyle: .medium)
     let notification = UILocalNotification()
     notification.alertBody = buf
     notification.soundName = "Default"
-    UIApplication.sharedApplication().presentLocalNotificationNow(notification)
+    UIApplication.shared.presentLocalNotificationNow(notification)
   }
 
-  func load_data(urlString:String) {
-    let url = NSURL(string: urlString)!
-    let session = NSURLSession.sharedSession()
-    let request = NSMutableURLRequest(URL: url)
+  func load_data(_ urlString:String) {
+    let url = URL(string: urlString)!
+    let session = URLSession.shared
+    let request = NSMutableURLRequest(url: url)
 //    request.HTTPMethod = "POST"
 //    request.cachePolicy = NSURLRequestCachePolicy.ReloadIgnoringCacheData
 //    let paramString = ""
 //    request.HTTPBody = paramString.dataUsingEncoding(NSUTF8StringEncoding)
-
-    let task = session.dataTaskWithRequest(request) {
-      (let data, let response, let error) in guard let _:NSData = data, let _:NSURLResponse = response  where error == nil else {
+    let task = session.dataTask(with: request as URLRequest, completionHandler: {
+      (data, response, error) in guard let _:Data = data, let _:URLResponse = response, error == nil else {
           print("error")
           return
       }
-      let dataString = NSString(data: data!, encoding: NSUTF8StringEncoding)
+      let dataString = NSString(data: data!, encoding: String.Encoding.utf8.rawValue)
       print(dataString)
-    }
+    }) 
     task.resume()
   }
 
