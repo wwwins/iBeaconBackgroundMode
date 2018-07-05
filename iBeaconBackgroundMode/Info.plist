@@ -29,7 +29,11 @@
 		<key>NSAllowsArbitraryLoads</key>
 		<true/>
 	</dict>
+	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
+	<string>應用程式需要取得您的地理位置</string>
 	<key>NSLocationAlwaysUsageDescription</key>
+	<string>應用程式需要取得您的地理位置</string>
+	<key>NSLocationWhenInUseUsageDescription</key>
 	<string>應用程式需要取得您的地理位置</string>
 	<key>UIBackgroundModes</key>
 	<array>
