@@ -152,7 +152,7 @@ class ViewController: UIViewController, CLLocationManagerDelegate {
   // ble scanning...?
   func handleRegionActions(_ region:CLRegion, msg:String) {
     print("handleRegionActions:"+msg)
-    let idString = region.identifier.substring(from: region.identifier.index(region.identifier.startIndex, offsetBy: 34))
+    let idString = String(region.identifier.suffix(2))
     msgLabel.text = "編號:" + idString + "\n狀態:" + msg
     if (msg=="Inside") {
       sendNotification(idString + ":" + msg)
@@ -182,7 +182,7 @@ class ViewController: UIViewController, CLLocationManagerDelegate {
           return
       }
       let dataString = NSString(data: data!, encoding: String.Encoding.utf8.rawValue)
-      print(dataString)
+      print(dataString!)
     }) 
     task.resume()
   }
